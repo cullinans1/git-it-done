@@ -19,16 +19,28 @@ var getUserRepos = function(user) {
     var apiUrl = "https://api.github.com/users/" + user + "/repos";
 
     //make a request to the url
-    fetch(apiUrl).then(function(response) {
-        response.json().then(function(data) {
-            dislayRepos(data, user);
+    fetch(apiUrl)
+        .then(function(response) {
+            if (response.ok) {
+                response.json().then(function(data) {
+                dislayRepos(data, user);
+                });
+            } else {
+                alert("Error: " + response.statusText);
+            }
+        })
+        .catch(function(error) {
+            alert("Unable to connect to GitHub :(");
         });
-    });
 };
 var dislayRepos = function(repos, searchTerm) {
     //clear out old content 
     repoContainerEl.textContent = "";
     repoSearchTerm.textContent = searchTerm;
+    if (repos.length === 0 ) {
+        repoContainerEl.textContent = "No repositories found with that username.";
+        return;
+    }
     // loop over repos
     for (var i = 0; i < repos.length; i++) {
         var repoName = repos[i].owner.login + "/" + repos[i].name;
