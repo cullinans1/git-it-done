@@ -2,6 +2,7 @@ var userFormEl = document.getElementById("user-form");
 var nameInputEl = document.getElementById("username");
 var repoContainerEl = document.getElementById("repos-container");
 var repoSearchTerm = document.getElementById("repo-search-term");
+var languageButtonEl = document.getElementById("language-buttons");
 
 var formSubmitHandler = function(event) {
     event.preventDefault()
@@ -23,7 +24,7 @@ var getUserRepos = function(user) {
         .then(function(response) {
             if (response.ok) {
                 response.json().then(function(data) {
-                dislayRepos(data, user);
+                displayRepos(data, user);
                 });
             } else {
                 alert("Error: " + response.statusText);
@@ -33,7 +34,7 @@ var getUserRepos = function(user) {
             alert("Unable to connect to GitHub :(");
         });
 };
-var dislayRepos = function(repos, searchTerm) {
+var displayRepos = function(repos, searchTerm) {
     //clear out old content 
     repoContainerEl.textContent = "";
     repoSearchTerm.textContent = searchTerm;
@@ -73,5 +74,26 @@ var dislayRepos = function(repos, searchTerm) {
         repoEl.appendChild(statusEl);
         repoContainerEl.appendChild(repoEl);
     }
-}
+;}
+var getFeaturedRepos = function(language) {
+    var apiUrl = "https://api.github.com/search/repositories?q=" + language + "is:featured&sort=help-wanted-issues";
+    fetch(apiUrl).then(function(response){
+        if(response.ok) {
+            response.json().then(function(data){
+                displayRepos(data.items, language);
+            });
+        } else {
+            alert("Error: " + response.statusText);
+        }
+    });
+};
+var buttonClickHandler = function(event) {
+    var language = event.target.getAttribute("data-language");
+    if(language) {
+        getFeaturedRepos(language);
+        //clear old content
+        repoContainerEl.textContent = "";
+    }
+};
 userFormEl.addEventListener("submit", formSubmitHandler);
+languageButtonEl.addEventListener("click", buttonClickHandler);
